@@ -193,6 +193,9 @@ export default function LoginPage() {
                 <span>Student</span>
               </button>
             </div>
+            <div className="mt-2 text-center text-[11px] text-muted">
+              Admin: <span className="font-semibold text-navy-900 font-mono">gurjeet@gmail.com</span> &bull; Password: <span className="font-semibold text-navy-900 font-mono">12345678</span>
+            </div>
           </div>
 
           {/* Google Sign In Button */}
@@ -241,7 +244,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   required
-                  placeholder="e.g. rahul.bca@pcte.edu.in"
+                  placeholder="e.g. gurjeet@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-surface border border-line rounded-xl pl-10 pr-4 py-2.5 text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-700/20 focus:bg-white transition-all"

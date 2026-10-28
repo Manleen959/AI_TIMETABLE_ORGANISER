@@ -70,6 +70,18 @@ export function AuthProvider({ children }) {
       }
     } catch (e) {}
 
+    // Dedicated root admin fallback
+    if (email?.toLowerCase() === 'gurjeet@gmail.com') {
+      const adminProf = {
+        uid: uid || 'admin_gurjeet_root',
+        name: 'Er. Gurjeet Singh (Admin)',
+        email: 'gurjeet@gmail.com',
+        role: 'admin',
+      };
+      setProfile(adminProf);
+      return adminProf;
+    }
+
     // Default fallback profile if not found
     const fallback = {
       name: email?.split('@')[0] || 'User',
@@ -114,6 +126,58 @@ export function AuthProvider({ children }) {
 
   // Standard Email/Password login
   async function login(email, password) {
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Dedicated Root Administrator Credentials: gurjeet@gmail.com / 12345678
+    if (cleanEmail === 'gurjeet@gmail.com' && password === '12345678') {
+      let uid = 'admin_gurjeet_root';
+      const adminProfile = {
+        uid,
+        name: 'Er. Gurjeet Singh (Admin)',
+        email: 'gurjeet@gmail.com',
+        role: 'admin',
+      };
+
+      if (isFirebaseConfigured) {
+        try {
+          let cred;
+          try {
+            cred = await signInWithEmailAndPassword(auth, 'gurjeet@gmail.com', '12345678');
+            uid = cred.user.uid;
+            adminProfile.uid = uid;
+          } catch (signErr) {
+            if (signErr.code === 'auth/user-not-found' || signErr.code === 'auth/invalid-credential') {
+              try {
+                cred = await createUserWithEmailAndPassword(auth, 'gurjeet@gmail.com', '12345678');
+                uid = cred.user.uid;
+                adminProfile.uid = uid;
+              } catch (createErr) {
+                console.warn('Auto-provisioning admin in Firebase Auth:', createErr);
+              }
+            }
+          }
+
+          if (uid) {
+            try {
+              await setDoc(doc(db, 'users', uid), {
+                ...adminProfile,
+                createdAt: serverTimestamp(),
+              }, { merge: true });
+            } catch (fsErr) {
+              console.warn('Could not set admin doc in Firestore:', fsErr);
+            }
+          }
+        } catch (e) {
+          console.warn('Admin Firebase Auth notice:', e);
+        }
+      }
+
+      localStorage.setItem(DEMO_USERS_KEY, JSON.stringify(adminProfile));
+      setUser({ uid: adminProfile.uid, email: adminProfile.email, displayName: adminProfile.name });
+      setProfile(adminProfile);
+      return adminProfile;
+    }
+
     // Check local users store first if not configured or for quick credentials
     const localUsers = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
     const localMatch = Object.values(localUsers).find(
@@ -357,9 +421,9 @@ export function AuthProvider({ children }) {
     let demoProfile;
     if (role === 'admin') {
       demoProfile = {
-        uid: 'demo_admin_pcte',
-        name: 'Dr. Anurag Sharma',
-        email: 'admin@pcte.edu.in',
+        uid: 'admin_gurjeet_root',
+        name: 'Er. Gurjeet Singh (Admin)',
+        email: 'gurjeet@gmail.com',
         role: 'admin',
       };
     } else if (role === 'teacher') {

@@ -58,16 +58,14 @@ Or copy the contents of `firestore.rules` directly into the [Firebase Console Fi
 
 ---
 
-## 4. First-Time Admin Onboarding (`/setup-admin`)
+## 4. Root Administrator Credentials (`/login` & `/setup-admin`)
 
-1. Open your deployed live URL: `https://your-app.vercel.app/setup-admin`
-2. Complete the initial root administrator registration form:
-   - Full Name
-   - College Email (`admin@pcte.edu.in`)
-   - Secure Password (minimum 8 characters)
-   - Secret Admin Setup Code: `PCTE-ADMIN-2026`
-3. After registration, the system creates your admin profile in Firestore under `users/{uid}` with `role: "admin"`.
-4. Subsequent registrations at `/setup-admin` will automatically be locked to prevent unauthorized privilege escalation.
+You can instantly log in to the administrative dashboard using the configured root administrator credentials:
+- **Email**: `gurjeet@gmail.com`
+- **Password**: `12345678`
+- **Role**: `admin` (Full authority over timetable imports, room re-allocations, faculty swaps, absence reporting, and audit history)
+
+Alternatively, on the Login page (`/login`), click the **Admin** button under **Quick Demo Test Accounts** to sign in instantly with one click.
 
 ---
 
