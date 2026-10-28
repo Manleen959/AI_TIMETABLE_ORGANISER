@@ -1,0 +1,142 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.role == 'admin' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isTeacher() {
+      return isAuthenticated() && (
+        request.auth.token.role == 'teacher' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher')
+      );
+    }
+
+    function getUserFacultyCode() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.facultyCode;
+    }
+
+    function getUserClassId() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.classId;
+    }
+
+    // 1. Users collection
+    // - Users read their own profile; teachers and admins can view rosters.
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin() || isTeacher();
+      
+      allow create: if isAuthenticated() && (
+        isAdmin() || 
+        (isOwner(userId) && request.resource.data.role == 'student')
+      );
+      
+      allow update: if isAuthenticated() && (
+        isAdmin() || 
+        (isOwner(userId) && request.resource.data.role == resource.data.role)
+      );
+      
+      allow delete: if isAdmin();
+    }
+
+    // 2. Timetable data (current & history)
+    match /timetables/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /timetableHistory/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 3. Substitutions
+    match /substitutions/{subId} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAdmin() || (
+        isTeacher() && 
+        request.resource.data.absentFaculty == getUserFacultyCode()
+      );
+      
+      allow update, delete: if isAdmin() || (
+        isTeacher() && 
+        resource.data.absentFaculty == getUserFacultyCode()
+      );
+    }
+
+    // 4. Announcements & Circulars
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isTeacher();
+    }
+
+    // 5. Cancellations / Class adjustments
+    match /cancellations/{cancelId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isTeacher();
+    }
+
+    // 6. Attendance collection
+    // - Students read their own class's attendance
+    // - Teachers write/read attendance for their classes
+    match /attendance/{attendanceId} {
+      allow read: if isAdmin() || isTeacher() || (isAuthenticated() && resource.data.classId == getUserClassId());
+      allow write: if isAdmin() || isTeacher();
+    }
+
+    // 7. Tasks & Planner collection
+    // - Users write and read only their own tasks
+    match /tasks/{taskId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+    }
+
+    // 8. Resources collection
+    // - Students read their class resources
+    // - Teachers post and delete resources
+    match /resources/{resourceId} {
+      allow read: if isAdmin() || isTeacher() || (isAuthenticated() && resource.data.classId == getUserClassId());
+      allow write: if isAdmin() || isTeacher();
+    }
+
+    // 9. Extra Classes collection
+    // - Students read extra classes for their class
+    // - Teachers schedule and delete extra classes
+    match /extraClasses/{extraId} {
+      allow read: if isAdmin() || isTeacher() || (isAuthenticated() && resource.data.classId == getUserClassId());
+      allow write: if isAdmin() || isTeacher();
+    }
+
+    // 10. Swaps collection
+    // - Readable by both teachers involved and admin
+    // - Creatable/updatable by involved teachers and admin
+    match /swaps/{swapId} {
+      allow read: if isAdmin() || (isTeacher() && (
+        resource.data.fromFaculty == getUserFacultyCode() || 
+        resource.data.toFaculty == getUserFacultyCode()
+      ));
+      allow create: if isAdmin() || (isTeacher() && request.resource.data.fromFaculty == getUserFacultyCode());
+      allow update: if isAdmin() || (isTeacher() && (
+        resource.data.fromFaculty == getUserFacultyCode() || 
+        resource.data.toFaculty == getUserFacultyCode()
+      ));
+      allow delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "SmartSchedule PCTE",
+        "supportEmail": "admin@pcte.edu.in",
+        "authorizedRedirectUris": [
+          "http://localhost",
+          "http://localhost:5173",
+          "https://bustrack-d929f.firebaseapp.com"
+        ]
+      }
+    }
+  }
+}

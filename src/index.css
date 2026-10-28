@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy-900: #052A66;
+  --navy-700: #0A44A8;
+  --green-600: #0E7C5A;
+  --lime-300: #C6EBA0;
+  --orange-500: #F26B21;
+  --ink: #0B1B3A;
+  --muted: #5B6B8A;
+  --bg: #F4F7FD;
+  --line: #E3E9F5;
+  
+  --radius-card: 20px;
+  --radius-panel: 28px;
+  --radius-hero: 48px;
+}
+
+html.dark {
+  --bg: #071329;
+  --ink: #F8FAFC;
+  --muted: #94A3B8;
+  --line: #1E293B;
+  --navy-900: #F8FAFC;
+}
+
+html.dark body {
+  background-color: #071329;
+  color: #F8FAFC;
+}
+
+html.dark .bg-white {
+  background-color: #0F172A !important;
+  color: #F8FAFC;
+}
+
+html.dark .bg-surface {
+  background-color: #071329 !important;
+}
+
+html.dark .border-line {
+  border-color: #1E293B !important;
+}
+
+html.dark .text-navy-900 {
+  color: #F8FAFC !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #1E293B !important;
+  color: #F8FAFC;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #334155 !important;
+  color: #F8FAFC;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .font-serif {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #EEF2F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Animation utilities */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 5s ease-in-out infinite 1.5s;
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 3s ease-in-out infinite;
+}
