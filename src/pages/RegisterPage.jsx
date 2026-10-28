@@ -39,7 +39,9 @@ export default function RegisterPage() {
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
-      if (err.code !== 'auth/popup-closed-by-user') {
+      if (err.code === 'auth/unauthorized-domain') {
+        toast.error('Domain not authorized in Firebase! In Firebase Console, add "ai-timetable-organiser.vercel.app" to Auth > Settings > Authorized domains.', { duration: 6000 });
+      } else if (err.code !== 'auth/popup-closed-by-user') {
         toast.error(err.message || 'Google registration failed');
       }
     } finally {

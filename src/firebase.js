@@ -2,6 +2,11 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
+function cleanEnv(val, fallback = '') {
+  if (!val) return fallback;
+  return String(val).trim().replace(/[\r\n\t]+/g, '').replace(/^["']|["']$/g, '').trim();
+}
+
 const requiredEnvVars = [
   'VITE_FIREBASE_API_KEY',
   'VITE_FIREBASE_AUTH_DOMAIN',
@@ -12,7 +17,7 @@ const requiredEnvVars = [
 ];
 
 export const missingFirebaseVars = requiredEnvVars.filter(
-  key => !import.meta.env[key] || import.meta.env[key] === 'your_firebase_web_api_key_here'
+  key => !import.meta.env[key] || cleanEnv(import.meta.env[key]) === 'your_firebase_web_api_key_here'
 );
 
 if (missingFirebaseVars.length > 0) {
@@ -22,15 +27,19 @@ if (missingFirebaseVars.length > 0) {
 }
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'demo-api-key',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'demo.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'demo-project',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'demo.appspot.com',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '0000000000',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:0000000000:web:0000000000',
+  apiKey: cleanEnv(import.meta.env.VITE_FIREBASE_API_KEY, 'demo-api-key'),
+  authDomain: cleanEnv(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN, 'bustrack-d929f.firebaseapp.com'),
+  projectId: cleanEnv(import.meta.env.VITE_FIREBASE_PROJECT_ID, 'bustrack-d929f'),
+  storageBucket: cleanEnv(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET, 'bustrack-d929f.firebasestorage.app'),
+  messagingSenderId: cleanEnv(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID, '610161394232'),
+  appId: cleanEnv(import.meta.env.VITE_FIREBASE_APP_ID, '1:610161394232:web:725731d93f12d751721ccd'),
 };
 
-export const isFirebaseConfigured = missingFirebaseVars.length === 0;
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey && 
+  firebaseConfig.apiKey !== 'demo-api-key' &&
+  firebaseConfig.apiKey !== 'your_firebase_web_api_key_here'
+);
 
 let app;
 let auth;
