@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { normalizeClassId } from '../hooks/useMyEntries';
+import { ALL_PCTE_CLASSES } from '../utils/timetableService';
 import { BookOpen, AlertCircle, CheckCircle2, Save, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ClassSelectorCard({ availableClasses = [], notFound = false, onSaved }) {
   const { profile, updateProfile } = useAuth();
-  const initialClass = availableClasses.length > 0 ? availableClasses[0] : '';
+  const classList = (availableClasses && availableClasses.length >= 20) 
+    ? [...availableClasses].sort() 
+    : ALL_PCTE_CLASSES;
+  const initialClass = classList.length > 0 ? classList[0] : '';
   const [selectedClass, setSelectedClass] = useState(profile?.classId || initialClass);
   const [saving, setSaving] = useState(false);
 
@@ -58,13 +62,13 @@ export default function ClassSelectorCard({ availableClasses = [], notFound = fa
           Class / Section
         </label>
         
-        {availableClasses.length > 0 ? (
+        {classList.length > 0 ? (
           <select
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
             className="w-full bg-white border border-line rounded-xl px-4 py-3 text-sm font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-green-600/20 focus:border-green-600 transition-all cursor-pointer shadow-xs"
           >
-            {availableClasses.map((cls) => (
+            {classList.map((cls) => (
               <option key={cls} value={cls}>
                 {cls}
               </option>

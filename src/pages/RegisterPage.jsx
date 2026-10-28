@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTimetable } from '../context/TimetableContext';
 import Logo from '../components/Logo';
 import { normalizeClassId } from '../hooks/useMyEntries';
+import { ALL_PCTE_CLASSES } from '../utils/timetableService';
 import { Sparkles, ArrowRight, User, Mail, Lock, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -18,9 +19,12 @@ export default function RegisterPage() {
   const { registerStudent, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
-  const availableClasses = timetableClasses && timetableClasses.length > 0 
-    ? timetableClasses 
-    : ['BCA-1A', 'BCA-1B', 'BCA-1C', 'BCA-1D', 'BCA-1E', 'BCA-2A', 'BCA-3A'];
+  const availableClasses = useMemo(() => {
+    if (timetableClasses && timetableClasses.length >= 20) {
+      return [...timetableClasses].sort();
+    }
+    return ALL_PCTE_CLASSES;
+  }, [timetableClasses]);
 
   useEffect(() => {
     if (availableClasses.length > 0 && !classId) {

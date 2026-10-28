@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTimetable } from '../context/TimetableContext';
 import { normalizeClassId } from '../hooks/useMyEntries';
+import { ALL_PCTE_CLASSES } from '../utils/timetableService';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { deleteUser } from 'firebase/auth';
 import { db, auth, isFirebaseConfigured } from '../firebase';
@@ -114,10 +115,10 @@ export default function ProfilePage() {
     }
   }
 
-  // Common PCTE classes list fallback
-  const availableClasses = (classes && classes.length > 0) 
-    ? classes 
-    : ['BTEC-4-CSE-4A', 'BTEC-4-CSE-4B', 'BTEC-6-CSE-6A', 'BCA-2A', 'BCA-4A', 'MCA-2A'];
+  // Complete PCTE classes list
+  const availableClasses = (classes && classes.length >= 20) 
+    ? [...classes].sort() 
+    : ALL_PCTE_CLASSES;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">

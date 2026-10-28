@@ -37,6 +37,24 @@ export async function loadDefaultPCTESample() {
   }
 }
 
+// Complete PCTE Official Class Sections (49 Cohorts)
+export const ALL_PCTE_CLASSES = [
+  'B.PHARMA-1A', 'B.PHARMA-1B', 'BAJMC-1', 'BAJMC-3',
+  'BBA-2A', 'BBA-2B', 'BBA-2C', 'BBA-2D', 'BBA-2E', 'BBA-2F',
+  'BCA-1A', 'BCA-1B', 'BCA-1C', 'BCA-1D', 'BCA-1E',
+  'BCA-2A', 'BCA-2B', 'BCA-2C', 'BCA-2D',
+  'BCA-3A', 'BCA-3B', 'BCA-3C', 'BCA-3D', 'BCA-3E',
+  'BCOM-2A', 'BCOM-2B', 'BCOM-2C', 'BCOM-2D',
+  'BHMCT-1A', 'BHMCT-1B', 'BHMCT-2A', 'BHMCT-2B',
+  'BSC-MLS',
+  'BTECH-AIML-2C', 'BTECH-AIML-2D', 'BTECH-AIML-3',
+  'BTECH-CSE-1A', 'BTECH-CSE-1B', 'BTECH-CSE-1C', 'BTECH-CSE-1D',
+  'BTECH-CSE-2A', 'BTECH-CSE-2B',
+  'BTECH-CSE-3A', 'BTECH-CSE-3B', 'BTECH-CSE-3C',
+  'BTECH-CSE-4A', 'BTECH-CSE-4B', 'BTECH-CSE-4C',
+  'BTTM-1'
+];
+
 /**
  * Get current timetable from Firestore (or LocalStorage fallback)
  */
@@ -47,7 +65,8 @@ export async function getCurrentTimetable() {
       const snap = await getDoc(docRef);
       if (snap.exists()) {
         const data = snap.data();
-        if (data?.classes?.includes('BCA-1A')) {
+        // Ensure it is the full master timetable (has >= 20 classes)
+        if (data?.classes && data.classes.length >= 20) {
           localStorage.setItem(LOCAL_CURRENT_KEY, JSON.stringify(data));
           return data;
         }
@@ -57,12 +76,12 @@ export async function getCurrentTimetable() {
     }
   }
 
-  // Check local storage
+  // Check local storage (ensure full schedule >= 20 classes)
   const cached = localStorage.getItem(LOCAL_CURRENT_KEY);
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
-      if (parsed?.classes?.includes('BCA-1A')) {
+      if (parsed?.classes && parsed.classes.length >= 20) {
         return parsed;
       }
     } catch (e) {
@@ -70,7 +89,7 @@ export async function getCurrentTimetable() {
     }
   }
 
-  // Fallback / Auto-sync: load from bundled PCTE sample
+  // Fallback / Auto-sync: load from bundled PCTE sample with all 49 classes
   const sample = await loadDefaultPCTESample();
   if (sample) {
     localStorage.setItem(LOCAL_CURRENT_KEY, JSON.stringify(sample));
